@@ -1,0 +1,77 @@
+<?php
+if (!isset($_SESSION['user_id']) || $_SESSION['user_categoria'] !== 'Leiturista') {
+    header("Location: ../index.php");
+    exit();
+}
+
+$idd_leiturista = $_SESSION["user_id"];
+
+// Primeiro, pegamos todos os clientes associados ao leiturista
+$sql = "SELECT * FROM identidade WHERE identidade_leiturista = '$idd_leiturista'";
+$res = $conn->query($sql);
+
+// Pegar todos os usuários
+$querysql = "SELECT * FROM usuario WHERE categoria ='Cliente'";
+$resultado = $conn->query($querysql);
+$clientes = [];
+$limite=[];
+$estado=[];
+while ($linha = $resultado->fetch_object()) {
+    $clientes[$linha->id] = $linha;
+    $limite[$linha->limite]=$linha;
+    $estado[$linha->estado]=$linha;
+}
+
+// Pegar as leituras
+$queryleitura = "SELECT leitura, id_cliente FROM leitura";
+$result = $conn->query($queryleitura);
+$leituras = [];
+while ($line = $result->fetch_object()) {
+    $leituras[$line->id_cliente] = $line;
+}
+
+// Criar um array para armazenar o maior id para cada cliente
+$maiores_ids = [];
+
+
+while ($row = $res->fetch_object()) {
+    $identidade_cliente = $row->identidade_cliente;
+    if (!isset($maiores_ids[$identidade_cliente]) || $row->id > $maiores_ids[$identidade_cliente]->id) {
+        $maiores_ids[$identidade_cliente] = $row;
+    
+    }
+}
+
+// Verificar se há dados para exibir
+if (!empty($maiores_ids)) {
+    echo "<table class='table table-hover table-striped table-bordered'>";
+    echo "<tr>";
+    echo "<th>Nome</th>";
+    echo "<th>Província</th>";
+    echo "<th>Bairro</th>";
+    echo "<th>Quarteirão</th>";
+    echo "<th>Número da casa</th>";
+    echo "<th>Leitura</th>";
+    echo "</tr>";
+
+    foreach ($maiores_ids as $row) {
+        if (isset($clientes[$row->identidade_cliente]) && isset($leituras[$row->identidade_cliente])) {
+            $cliente = $clientes[$row->identidade_cliente];
+            $leitura = $leituras[$row->identidade_cliente];
+            // Verificar se o estado é 0 e o limite é igual a zero
+                echo "<tr>";
+                echo "<td>{$cliente->nome}</td>";
+                echo "<td>{$cliente->provincia}</td>";
+                echo "<td>{$cliente->bairro}</td>";
+                echo "<td>{$cliente->quarteirao}</td>";
+                echo "<td>{$cliente->nrcasa}</td>";
+                echo "<td>{$leitura->leitura}</td>";
+                echo "</tr>";
+            
+        }
+    }
+    
+    echo "</table>";
+} else {
+    echo "<p class='alert alert-info'>Não existe nenhum histórico</p>";
+}

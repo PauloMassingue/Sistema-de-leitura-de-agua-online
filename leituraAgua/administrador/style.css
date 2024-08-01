@@ -1,0 +1,239 @@
+.custum-li {
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 10px;
+    margin-bottom: 10px;
+    background-color: #f9f9f9;
+    color: #333; /* Cor do texto */
+}
+
+.custum-li a {
+    color: #007bff;
+    text-decoration: none;
+}
+
+.custum-li p {
+    font-size: 0.8em;
+    color: #999;
+    margin-top: 5px;
+}
+
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f7f6;
+        }
+        
+        .main-container {
+            margin: 20px;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            background: white;
+        }
+        .sidebar {
+            height: 100vh;
+            width: 250px;
+            position: fixed;
+            top: 0;
+            left: -250px;
+            background-color: #2b8ac6;
+            color: white;
+            padding-top: 20px;
+            transition: left 0.3s;
+        }
+        .sidebar.active {
+            left: 0;
+            overflow-y: auto;
+        }
+        .sidebar .nav-link {
+            color: white;
+            margin: 10px 0;
+            padding: 10px 20px;
+            display: block;
+            text-decoration: none;
+        }
+        .sidebar .nav-link:hover {
+            background-color: #495057;
+            border-radius: 5px;
+        }
+        .sidebar ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        .content {
+            margin-left: 0;
+            transition: margin-left 0.3s;
+        }
+        .content.shifted {
+            margin-left: 250px;
+        }
+        .dashboard-header {
+            background-color: #eef7fb;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .dashboard-card, .top-sales, .recent-news, .sales-chart, .percentage-sales, .sales-market {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .notification {
+            background-color: #ffc107;
+            color: #343a40;
+            padding: 10px;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+        }
+        .notification i {
+            margin-right: 10px;
+        }
+        #sidebarToggle {
+            z-index: 1;
+            cursor: pointer;
+            background: none;
+            border: none;
+            color: #2b8ac6;
+            font-size: 1.5em;
+        }
+        .sidebar-close {
+            display: block;
+            text-align: right;
+            padding: 10px;
+        }
+        .sidebar-close button {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5em;
+            cursor: pointer;
+        }
+        .btn-notification {
+            position: relative;
+            padding: 5px 10px;
+            border: none;
+            background: #2b8ac6;
+            color: white;
+            border-radius: 50%;
+            font-size: 1.5em;
+            cursor: pointer;
+        }
+        .btn-notification::after {
+            content: '1';
+            position: absolute;
+            top: 0;
+            right: 0;
+            background: red;
+            color: white;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 50%;
+            font-size: 0.75em;
+        }
+        .content-include {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: calc(100vh - 200px);
+        }
+        .content-include > div {
+            width: 100%;
+            max-width: 900px;
+            padding: 20px;
+        }
+        .popup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 30%;
+            height: 50%;
+            background: #343a40;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            border-radius: 10px;
+            z-index: 1000;
+            color: white;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        .popup.light-mode {
+            background: white;
+            color: black;
+        }
+        .popup-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #ddd;
+            cursor: move;
+        }
+        .popup-header button {
+            background: none;
+            border: none;
+            font-size: 1.5em;
+            cursor: pointer;
+        }
+        .popup-content {
+            padding: 20px;
+        }
+        .popup-content ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        .popup-content ul li a {
+            color: inherit;
+            text-decoration: none;
+        }
+        .back-button {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5em;
+            cursor: pointer;
+        }
+        .back-button.light-mode {
+            color: black;
+        }
+        .popup-header h4 {
+            margin-left: 30px;
+        }
+
+        /* Novo CSS para mudar a cor do link ao passar o mouse */
+        .leiturista-link:hover {
+            color: blue;
+        }
+        /*  */
+        .text-center {
+            padding: 50px 0; /* Adiciona 50px de padding em todos os lados */
+        }
+        
+        .text-center h4 {
+            font-size: 7em; /* Aumenta o tamanho do ícone */
+            color: #ffffff; /* Define a cor do ícone como branca */
+            margin: 0; /* Remove a margem para um melhor alinhamento */
+            padding: 0; /* Remove o padding para um melhor alinhamento */
+        }
+        
+        .text-center h4 i {
+            vertical-align: middle; /* Alinha verticalmente o ícone no meio */
+            margin-right: 10px; /* Espaçamento à direita do ícone */
+            margin-top: -5px; /* Eleva o ícone adicionando uma margem superior negativa */
+        }
+        /* nt */
+     
+        

@@ -1,0 +1,525 @@
+corrija o seguinte codigo:<?php
+$data_diferenca=0;
+include('../config.php');
+include("../data_manipulacao.php");
+// Inicia a sessão antes de qualquer saída HTML
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
+
+$nome_adm = "";
+
+if (!isset($_SESSION['user_id']) || $_SESSION['user_categoria'] !== 'Administrador') {
+    header("Location: ../index.php");
+    exit();
+}
+
+$id_administrador = $_SESSION['user_id'];
+$sql = "SELECT id, nome FROM usuario";
+$res = $conn->query($sql);
+while ($row = $res->fetch_object()) {
+    if ($row->id == $id_administrador) {
+        $nome_adm = $row->nome;
+    }
+}
+
+// Pegar os clientes com limite >= 3
+$base_de_dados = "SELECT id, nome, limite, categoria,data_counte FROM usuario";
+$resultado = $conn->query($base_de_dados);
+
+// Pegar os leituristas
+$leituristas = $conn->query($base_de_dados);
+
+
+
+
+//
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (isset($_POST['leiturista'])) {
+        $leituristaId = $_POST['leiturista'];
+        // Processar o ID do leiturista conforme necessário
+        echo "ID do leiturista: " . $leituristaId; // Para verificação
+    } else {
+        echo "Nenhum ID de leiturista recebido.";
+    }
+} else {
+    echo "Método de requisição inválido.";
+}
+
+//
+?>
+<!DOCTYPE html>
+<html lang="pt-pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="../css/bootstrap.min.css" rel="stylesheet">
+    <title>Administrador</title>
+    <style>
+.custum-li {
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 10px;
+    margin-bottom: 10px;
+    background-color: #f9f9f9;
+    color: #333; /* Cor do texto */
+}
+
+.custum-li a {
+    color: #007bff;
+    text-decoration: none;
+}
+
+.custum-li p {
+    font-size: 0.8em;
+    color: #999;
+    margin-top: 5px;
+}
+
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f7f6;
+        }
+        
+        .main-container {
+            margin: 20px;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            background: white;
+        }
+        .sidebar {
+            height: 100vh;
+            width: 250px;
+            position: fixed;
+            top: 0;
+            left: -250px;
+            background-color: #2b8ac6;
+            color: white;
+            padding-top: 20px;
+            transition: left 0.3s;
+        }
+        .sidebar.active {
+            left: 0;
+            overflow-y: auto;
+        }
+        .sidebar .nav-link {
+            color: white;
+            margin: 10px 0;
+            padding: 10px 20px;
+            display: block;
+            text-decoration: none;
+        }
+        .sidebar .nav-link:hover {
+            background-color: #495057;
+            border-radius: 5px;
+        }
+        .sidebar ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        .content {
+            margin-left: 0;
+            transition: margin-left 0.3s;
+        }
+        .content.shifted {
+            margin-left: 250px;
+        }
+        .dashboard-header {
+            background-color: #eef7fb;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .dashboard-card, .top-sales, .recent-news, .sales-chart, .percentage-sales, .sales-market {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .notification {
+            background-color: #ffc107;
+            color: #343a40;
+            padding: 10px;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+        }
+        .notification i {
+            margin-right: 10px;
+        }
+        #sidebarToggle {
+            z-index: 1;
+            cursor: pointer;
+            background: none;
+            border: none;
+            color: #2b8ac6;
+            font-size: 1.5em;
+        }
+        .sidebar-close {
+            display: block;
+            text-align: right;
+            padding: 10px;
+        }
+        .sidebar-close button {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5em;
+            cursor: pointer;
+        }
+        .btn-notification {
+            position: relative;
+            padding: 5px 10px;
+            border: none;
+            background: #2b8ac6;
+            color: white;
+            border-radius: 50%;
+            font-size: 1.5em;
+            cursor: pointer;
+        }
+        .btn-notification::after {
+            content: '1';
+            position: absolute;
+            top: 0;
+            right: 0;
+            background: red;
+            color: white;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 50%;
+            font-size: 0.75em;
+        }
+        .content-include {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: calc(100vh - 200px);
+        }
+        .content-include > div {
+            width: 100%;
+            max-width: 900px;
+            padding: 20px;
+        }
+        .popup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 30%;
+            height: 50%;
+            background: #343a40;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            border-radius: 10px;
+            z-index: 1000;
+            color: white;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        .popup.light-mode {
+            background: white;
+            color: black;
+        }
+        .popup-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #ddd;
+            cursor: move;
+        }
+        .popup-header button {
+            background: none;
+            border: none;
+            font-size: 1.5em;
+            cursor: pointer;
+        }
+        .popup-content {
+            padding: 20px;
+        }
+        .popup-content ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        .popup-content ul li a {
+            color: inherit;
+            text-decoration: none;
+        }
+        .back-button {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5em;
+            cursor: pointer;
+        }
+        .back-button.light-mode {
+            color: black;
+        }
+        .popup-header h4 {
+            margin-left: 30px;
+        }
+
+        /* Novo CSS para mudar a cor do link ao passar o mouse */
+        .leiturista-link:hover {
+            color: blue;
+        }
+        
+    </style>
+</head>
+<body>
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-close">
+            <button id="sidebarClose">&#9776;</button>
+        </div>
+        <div class="text-center">
+            <h4><?php echo $nome_adm; ?></h4>
+        </div>
+
+        <ul class="nav flex-column">
+            <li class="nav-item">
+                <a class="nav-link" href="?page=administrador.php">Home</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="?page=perfil">Perfil</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="?page=cadastro">Cadastro</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="?page=cliente">Cliente</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="?page=leiturista">Leiturista</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="?page=relatorio">Relatório</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="../index.php">Terminar Sessão</a>
+            </li>
+        </ul>
+    </div>
+    <!-- Main Content -->
+    <div class="content main-container" id="content">
+        <div class="dashboard-header">
+            <h1><?php echo "Olá, {$nome_adm}"; ?></h1>
+            <div>
+                <button id="sidebarToggle" class="btn-notification">&#9776;</button>
+                <button class="btn-notification">&#9993;</button>
+                <button class="btn-notification" id="messageButton">&#128276;</button>
+            </div>
+        </div>
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12 content-include">
+                    <div>
+                        <?php 
+                            switch(@$_REQUEST['page']){
+                                case 'cadastro':
+                                    include("./cadastro.php");
+                                    break;
+                                case 'cliente':
+                                    include("./cliente.php");
+                                    break;
+                                case 'leiturista': 
+                                    include("./leiturista.php");
+                                    break;
+                                case 'alertas':
+                                    include("./alertas.php");
+                                    break;
+                                case 'relatorio':
+                                    include("./relatorio.php");
+                                    break;
+                                case 'login':
+                                    include("./login.php");
+                                    break;
+                                case 'operacoes':
+                                    include("./operacoes.php");
+                                    break;
+                                default:
+                                    echo "<h2>Bem-vindo ao painel do administrador</h2>";
+                            }
+                        ?>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Pop-up de cliente -->
+    <div class="popup" id="messagePopup">
+        <div class="popup-header">
+            <h4>Clientes Irregulares</h4>
+            <div>
+                <button id="toggleMode">🌗</button>
+                <button id="closePopup">&times;</button>
+            </div>
+        </div>
+        <div class="popup-content">
+            <ul>
+                <?php
+                while($linha = $resultado->fetch_object()) {
+                    if ($linha->limite >= 3) {
+                        $data_diferenca=contarTempo($linha->data_counte);
+                        echo "<li class='custum-li' style='padding:10px;'><a href='#' class='leiturista-link' data-leiturista='$linha->id'>{$linha->nome}</a> <p style='display:inline;'>{$data_diferenca}</p></li>";
+
+                    }
+                }
+                ?>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Novo Pop-up para Leituristas -->
+    <div class="popup" id="leituristaPopup">
+        <button class="back-button" id="backButton">&#8592;</button>
+        <div class="popup-header">
+            <h4>Leituristas</h4>
+            <div>
+                <button id="toggleModeLeiturista">🌗</button>
+                <button id="closeLeituristaPopup">&times;</button>
+            </div>
+        </div>
+        <div class="popup-content">
+            <ul>
+                <?php
+                while($linha = $leituristas->fetch_object()) {
+                    if ($linha->categoria == 'Leiturista') {
+                        echo "<li class='custum-li' style='padding:10px;'><a href='#'>{$linha->nome}</a>  <button class='btn btn-primary'>Alocar</button></li>";
+
+                        echo"<li></li>";
+                    }
+                }
+                ?>
+            </ul>
+        </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            let isDragging = false;
+            let offset = { x: 0, y: 0 };
+            
+            function onMouseMove(event, popupId) {
+                if (isDragging) {
+                    const left = event.clientX - offset.x;
+                    const top = event.clientY - offset.y;
+                    $(popupId).css({ top: `${top}px`, left: `${left}px`, transform: 'none' });
+                }
+            }
+            
+            function makePopupDraggable(popupId) {
+                $(popupId + ' .popup-header').on('mousedown', function (event) {
+                    isDragging = true;
+                    const rect = $(popupId)[0].getBoundingClientRect();
+                    offset.x = event.clientX - rect.left;
+                    offset.y = event.clientY - rect.top;
+                    $(window).on('mousemove', (e) => onMouseMove(e, popupId));
+                });
+                
+                $(window).on('mouseup', function () {
+                    isDragging = false;
+                    $(window).off('mousemove', (e) => onMouseMove(e, popupId));
+                });
+            }
+                //cliente
+            makePopupDraggable('#messagePopup');
+            makePopupDraggable('#leituristaPopup');
+
+            $('#sidebarToggle, #sidebarClose').on('click', function () {
+                $('#sidebar').toggleClass('active');
+                $('#content').toggleClass('shifted');
+            });
+
+            $('#messageButton').on('click', function () {
+                $('#messagePopup').show();
+            });
+
+            $('#closePopup').on('click', function () {
+                $('#messagePopup').hide();
+            });
+
+            $('#toggleMode').on('click', function () {
+                $('#messagePopup').toggleClass('light-mode');
+            });
+
+            $('.leiturista-link').on('click', function (event) {
+                event.preventDefault();
+
+                const clienteId = $(this).data('leiturista');
+                alert(clienteId);
+               //#007bff
+               $('.leiturista-link').on('click', function(event) {
+    event.preventDefault();
+
+    const leituristaId = $(this).data('leiturista');
+    alert(leituristaId); // Para verificação
+
+    $.ajax({
+        url: 'administrador.php', // Substitua pelo nome do seu arquivo PHP
+        type: 'POST',
+        data: { leiturista: leituristaId },
+        success: function(response) {
+            // Processar a resposta do servidor aqui, se necessário
+            console.log(response);
+        },
+        error: function(xhr, status, error) {
+            console.error(xhr.responseText);
+        }
+    });
+});
+
+               // 
+
+
+                $('#messagePopup').hide();
+                $('#leituristaPopup').show();
+            });
+
+            //leiturista 
+            $('#backButton').on('click', function () {
+                $('#leituristaPopup').hide();
+                $('#messagePopup').show();
+            });
+
+            $('#closeLeituristaPopup').on('click', function () {
+                $('#leituristaPopup').hide();
+            });
+
+            $('#toggleModeLeiturista').on('click', function () {
+                $('#leituristaPopup').toggleClass('light-mode');
+                $('#backButton').toggleClass('light-mode');
+            });
+
+            // Fechar o pop-up ao clicar fora dele
+            $(window).on('click', function (event) {
+                if ($(event.target).is('#messagePopup')) {
+                    $('#messagePopup').hide();
+                }
+                if ($(event.target).is('#leituristaPopup')) {
+                    $('#leituristaPopup').hide();
+                }
+            });
+        });
+    </script>
+</body>
+</html>
+esta dizendo: Método de requisição inválido.
+ao clicar no link de clientes deve capturar: data-leiturista e colocar numa variavel php, corrija todos erros possiveis e me retorne o codigo completo funcionando.
+
+
+ <div class="mb-3">
+    </div>
